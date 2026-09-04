@@ -101,3 +101,37 @@ test("a failed append retains the exact pending session for a later retry", asyn
   assert.equal(store.state.pending, null);
   assert.equal(appendAttempts, 2);
 });
+
+test("a restored running timer can be stopped after an app restart", async () => {
+  const store = new MemoryStateStore();
+  const clock = mutableClock("2026-09-04T04:30:00.000Z");
+  const beforeRestart = new TimerService({
+    stateStore: store,
+    clock: clock.now,
+    appendSession: async () => {
+      throw new Error("First service instance was closed.");
+    },
+  });
+
+  await beforeRestart.start("Project");
+  clock.set("2026-09-04T05:00:00.000Z");
+
+  const afterRestart = new TimerService({
+    stateStore: store,
+    clock: clock.now,
+    appendSession: async () => {
+      throw new Error("Google Sheets is unavailable.");
+    },
+  });
+
+  const stopped = await afterRestart.stop("Added restart coverage");
+  const retry = await afterRestart.retryPending();
+
+  assert.equal(stopped.category, "Project");
+  assert.equal(stopped.durationMinutes, 30);
+  assert.equal(retry.saved, false);
+  assert.equal(store.state.running, null);
+  assert.equal(store.state.pending.id, stopped.id);
+  assert.equal(store.state.pending.note, "Added restart coverage");
+  assert.match(store.state.pending.lastError, /unavailable/i);
+});

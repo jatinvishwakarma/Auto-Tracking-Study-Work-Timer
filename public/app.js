@@ -161,6 +161,14 @@ async function refreshStatus() {
   render();
 }
 
+async function refreshStatusQuietly() {
+  try {
+    await refreshStatus();
+  } catch {
+    render();
+  }
+}
+
 elements.startButton.addEventListener("click", async () => {
   try {
     model.saving = true;
@@ -190,10 +198,23 @@ elements.stopButton.addEventListener("click", async () => {
       body: JSON.stringify({ note: elements.sessionNote.value }),
     });
     elements.sessionNote.value = "";
-    await refreshStatus();
-    showNotice(result.saved ? "Session saved to Google Sheets." : "Session is saved locally and waiting for a retry.", result.saved ? "success" : "error");
+    model.status = {
+      ...model.status,
+      running: null,
+      pending: result.saved ? null : (result.pending ?? result.session),
+    };
+    render();
+    showNotice(
+      result.saved ? "Session saved to Google Sheets." : "Session is saved locally and waiting for a retry.",
+      result.saved ? "success" : "error",
+    );
+    await refreshStatusQuietly();
   } catch (error) {
-    showNotice(error.message, "error");
+    await refreshStatusQuietly();
+    showNotice(
+      model.status.pending ? "Session stopped locally. Retry the Google Sheets save when ready." : error.message,
+      "error",
+    );
   } finally {
     model.saving = false;
     setBusy(elements.stopButton, false);

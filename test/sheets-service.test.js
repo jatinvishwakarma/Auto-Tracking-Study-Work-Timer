@@ -27,6 +27,37 @@ function createFakeSheets(existingRows = []) {
   };
 }
 
+function createFakeSchemaSheets() {
+  const calls = { updates: [], batchUpdates: [], gets: [] };
+  const sheets = [
+    { properties: { sheetId: 101, title: "Timer Sessions" } },
+    { properties: { sheetId: 202, title: "Daily Dashboard" }, charts: [] },
+  ];
+
+  return {
+    calls,
+    api: {
+      spreadsheets: {
+        get: async (request) => {
+          calls.gets.push(request);
+          return { data: { sheets } };
+        },
+        batchUpdate: async (request) => {
+          calls.batchUpdates.push(request);
+          return { data: {} };
+        },
+        values: {
+          get: async () => ({ data: { values: [] } }),
+          update: async (request) => {
+            calls.updates.push(request);
+            return { data: {} };
+          },
+        },
+      },
+    },
+  };
+}
+
 const sampleSession = Object.freeze({
   id: "session-1",
   category: "DSA",
@@ -63,4 +94,38 @@ test("appendSession finds an existing matching row before retrying an ambiguous 
 
   assert.equal(result.deduplicated, true);
   assert.equal(fake.calls.appends.length, 0);
+});
+
+test("ensureSchema prepares readable dashboard totals, summaries, and charts", async () => {
+  const fake = createFakeSchemaSheets();
+  const service = new SheetsService({
+    config: { ...serviceConfig, sheetsSetupMode: "create-or-repair" },
+    sheetsApi: fake.api,
+  });
+
+  const result = await service.ensureSchema();
+
+  assert.equal(result.valid, true);
+  assert.deepEqual(fake.calls.updates.map((request) => request.range), [
+    "'Timer Sessions'!A1:I1",
+    "'Daily Dashboard'!A1:M1",
+    "'Daily Dashboard'!A2:M2",
+    "'Daily Dashboard'!O1:Q10",
+  ]);
+  assert.deepEqual(fake.calls.updates[1].requestBody.values[0].slice(6, 11), [
+    "Total Working Time (min)",
+    "Total Time",
+    "Study Time (min)",
+    "Study Time",
+    "Study % of Total",
+  ]);
+
+  const chartRequests = fake.calls.batchUpdates
+    .flatMap((request) => request.requestBody.requests)
+    .filter((request) => request.addChart);
+
+  assert.deepEqual(
+    chartRequests.map((request) => request.addChart.chart.spec.title),
+    ["Time by Category", "Study vs Office Work", "Daily Total vs Study Time"],
+  );
 });

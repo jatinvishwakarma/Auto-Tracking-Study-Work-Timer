@@ -15,7 +15,7 @@ Until Sheets credentials are configured, the app still persists a running or sto
 
 Create a Google Cloud service account, enable Google Sheets API, download the JSON key to a safe local path, and share the target spreadsheet with the service account's email as an Editor. Put the spreadsheet ID and the key-file path in `.env`.
 
-By default `SHEETS_SETUP_MODE=validate`: the app only validates pre-created `Timer Sessions` and `Daily Dashboard` tabs. Set it to `create-or-repair` only if you want the app's setup action to create missing app tabs/headers and dashboard formulas. Existing session rows are not overwritten.
+By default `SHEETS_SETUP_MODE=validate`: the app only validates pre-created `Timer Sessions` and `Daily Dashboard` tabs. Set it to `create-or-repair` only if you want the app's setup action to create missing app tabs/headers, dashboard formulas, readable total-time columns, summary tables, and charts. Existing session rows are not overwritten.
 
 ## Safety model
 
