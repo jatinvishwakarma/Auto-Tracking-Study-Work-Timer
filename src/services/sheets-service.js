@@ -70,7 +70,7 @@ function dashboardFormulas(timerSessionsTab) {
     `=ARRAYFORMULA(IF(A2:A="","",SUMIFS(${tab}!$E:$E,${tab}!$A:$A,A2:A,${tab}!$B:$B,"${category}")))`;
 
   return [
-    `=IFERROR(SORT(UNIQUE(FILTER(${tab}!A2:A,${tab}!A2:A<>""))),"")`,
+    `=IFERROR(SORT(UNIQUE(FILTER(INDIRECT("${timerSessionsTab.replaceAll('"', '""')}!A2:A"),INDIRECT("${timerSessionsTab.replaceAll('"', '""')}!A2:A")<>""))),"")`,
     categoryFormula("Office Work"),
     categoryFormula("DSA"),
     categoryFormula("System Design"),
@@ -134,7 +134,7 @@ export class SheetsService {
         spreadsheetId: this.config.spreadsheetId,
         range: `${quoteSheetName(this.config.timerSessionsTab)}!A:I`,
         valueInputOption: "RAW",
-        insertDataOption: "INSERT_ROWS",
+        insertDataOption: "OVERWRITE",
         requestBody: { values: [row] },
       });
     }
