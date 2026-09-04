@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.*
+!.env.example
+data/
+*.log
+*service-account*.json
+*google-service-account*.json
+jatin-activity-tracker*.json
+jatin-activity-tracker-e5933bf9f3a2.json
+*.key
+*.pem
+.DS_Store
+Thumbs.db
+
