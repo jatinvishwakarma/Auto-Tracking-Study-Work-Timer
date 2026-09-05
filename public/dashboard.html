@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#131a2b" />
+    <title>Focus Ledger — Dashboard</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">ACTIVITY DASHBOARD</p>
+          <h1>Focus Ledger</h1>
+        </div>
+        <nav class="nav-links">
+          <a href="/" class="nav-link">⏱ Timer</a>
+          <a href="/dashboard.html" class="nav-link nav-link--active">📊 Dashboard</a>
+        </nav>
+      </header>
+
+      <!-- Today's Summary -->
+      <section class="dashboard-today" id="today-section">
+        <div class="today-header">
+          <div>
+            <p class="section-label">TODAY'S FOCUS</p>
+            <h2 id="today-date" class="today-date">Loading…</h2>
+          </div>
+          <div class="today-stats">
+            <div class="stat-pill stat-pill--total">
+              <span class="stat-pill__value" id="today-total-hours">0h</span>
+              <span class="stat-pill__label">Total</span>
+            </div>
+            <div class="stat-pill stat-pill--study">
+              <span class="stat-pill__value" id="today-study-hours">0h</span>
+              <span class="stat-pill__label">Study</span>
+            </div>
+            <div class="stat-pill stat-pill--office">
+              <span class="stat-pill__value" id="today-office-hours">0h</span>
+              <span class="stat-pill__label">Office</span>
+            </div>
+            <div class="stat-pill stat-pill--sessions">
+              <span class="stat-pill__value" id="today-session-count">0</span>
+              <span class="stat-pill__label">Sessions</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Charts Row -->
+      <section class="dashboard-charts">
+        <div class="chart-card">
+          <p class="section-label">TIME BY CATEGORY</p>
+          <div class="chart-container">
+            <canvas id="category-pie-chart"></canvas>
+          </div>
+          <p id="category-empty" class="chart-empty" hidden>No sessions recorded today.</p>
+        </div>
+        <div class="chart-card">
+          <p class="section-label">STUDY vs OFFICE</p>
+          <div class="chart-container">
+            <canvas id="study-office-chart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Today's Session List -->
+      <section class="sessions-card">
+        <div class="sessions-header">
+          <p class="section-label">TODAY'S SESSIONS</p>
+          <span id="sessions-count" class="badge badge-muted">0 sessions</span>
+        </div>
+        <div id="sessions-list" class="sessions-list">
+          <p class="chart-empty" id="sessions-empty">No sessions today. Start tracking!</p>
+        </div>
+      </section>
+
+      <!-- Weekly Overview -->
+      <section class="weekly-card">
+        <div class="weekly-header">
+          <div>
+            <p class="section-label">WEEKLY OVERVIEW</p>
+            <h2>Last 7 days</h2>
+          </div>
+          <div class="weekly-total">
+            <span class="stat-pill stat-pill--total">
+              <span class="stat-pill__value" id="weekly-total-hours">0h</span>
+              <span class="stat-pill__label">This Week</span>
+            </span>
+          </div>
+        </div>
+        <div class="chart-container chart-container--wide">
+          <canvas id="weekly-bar-chart"></canvas>
+        </div>
+        <div class="weekly-breakdown" id="weekly-breakdown"></div>
+      </section>
+
+      <!-- All Time Category Breakdown -->
+      <section class="alltime-card">
+        <div class="alltime-header">
+          <p class="section-label">ALL-TIME BREAKDOWN</p>
+          <button id="alltime-toggle" class="button button-secondary" type="button">Show all sessions</button>
+        </div>
+        <div class="chart-container chart-container--wide">
+          <canvas id="alltime-bar-chart"></canvas>
+        </div>
+        <div class="alltime-stats" id="alltime-stats"></div>
+      </section>
+
+      <p id="notice" class="notice" role="status" aria-live="polite"></p>
+    </main>
+    <script type="module" src="/dashboard.js"></script>
+  </body>
+</html>
