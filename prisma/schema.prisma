@@ -1,0 +1,431 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String                  @id @default(cuid())
+  email              String?                 @unique
+  name               String?
+  timezone           String                  @default("Asia/Kolkata")
+  preferences        Json                    @default("{}")
+  githubToken        String?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  dsaBatches         DSABatch[]
+  dsaProblems        DSAProblem[]
+  dsaReviews         DSAReview[]
+  dailyJournals      DailyJournal[]
+  goals              Goal[]
+  projects           Project[]
+  projectLogs        ProjectLog[]
+  systemDesignCases  SystemDesignCaseStudy[]
+  systemDesignNotes  SystemDesignNote[]
+  systemDesignTopics SystemDesignTopic[]
+  timeLogs           TimeLog[]
+  interviewQuestions InterviewQuestion[]
+  userStudyPlans     UserStudyPlan[]
+}
+
+// ─── DSA ──────────────────────────────────────────────────────────────────
+
+model DSABatch {
+  id           String       @id @default(cuid())
+  userId       String
+  name         String
+  importedAt   DateTime     @default(now())
+  source       String       @default("manual")
+  problemCount Int          @default(0)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problems     DSAProblem[]
+
+  @@index([userId])
+}
+
+model DSAPattern {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  category    String       // "Array", "String", "Tree", "Graph", "DP"
+  description String?
+  problemCount Int         @default(0)
+  problems    DSAProblem[]
+
+  @@index([category])
+}
+
+model DSAProblem {
+  id          String      @id @default(cuid())
+  userId      String
+  batchId     String?
+  patternId   String?
+  title       String
+  platform    String?
+  problemUrl  String?
+  leetcodeUrl String?
+  gfgUrl      String?
+  companyTags String?     // comma-separated: "Google,Amazon,Meta"
+  isFromBank  Boolean     @default(false)
+  bankSource  String?     // "Blind75", "NeetCode150", "StriverA2Z"
+  difficulty  Difficulty  @default(Medium)
+  topic       String      @default("General")
+  subTopic    String?
+  pattern     String?
+  status      DSAStatus   @default(NotStarted)
+  notes       String?
+  approach    String?
+  mistakes    String?
+  timeTaken   Int?
+  attempts    Int         @default(0)
+  confidence  Int?
+  solvedAt    DateTime?
+  reviewAt    DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  batch       DSABatch?   @relation(fields: [batchId], references: [id])
+  dsaPattern  DSAPattern? @relation(fields: [patternId], references: [id])
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviews     DSAReview[]
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([userId, topic])
+  @@index([userId, difficulty])
+  @@index([userId, batchId])
+  @@index([userId, patternId])
+}
+
+model DSAReview {
+  id         String     @id @default(cuid())
+  problemId  String
+  userId     String
+  reviewedAt DateTime   @default(now())
+  confidence Int
+  notes      String?
+  mistakes   String?
+  timeTaken  Int?
+  problem    DSAProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([problemId])
+  @@index([userId])
+}
+
+// ─── System Design ─────────────────────────────────────────────────────────
+
+model SystemDesignTopic {
+  id              String             @id @default(cuid())
+  userId          String
+  name            String
+  status          SDStatus           @default(NotStarted)
+  progress        Int                @default(0)
+  confidence      Int?
+  notes           String?
+  keyConcepts     String?
+  commonQuestions String?
+  resources       String?
+  lastStudied     DateTime?
+  nextReview      DateTime?
+  timeInvested    Int                @default(0)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  studyNotes      SystemDesignNote[]
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model SystemDesignNote {
+  id                String            @id @default(cuid())
+  userId            String
+  topicId           String
+  date              DateTime          @default(now())
+  whatLearned       String
+  keyConcepts       String?
+  questions         String?
+  unclearPoints     String?
+  architectureNotes String?
+  resources         String?
+  confidence        Int?
+  timeSpent         Int?
+  nextSteps         String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  topic             SystemDesignTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([topicId])
+}
+
+model SystemDesignCaseStudy {
+  id                String       @id @default(cuid())
+  userId            String
+  title             String
+  problemStatement  String?
+  requirements      String?
+  functionalReqs    String?
+  nonFunctionalReqs String?
+  highLevelArch     String?
+  components        String?
+  databaseChoice    String?
+  scalingNotes      String?
+  bottlenecks       String?
+  tradeoffs         String?
+  finalNotes        String?
+  confidence        Int?
+  status            SDCaseStatus @default(NotStarted)
+  timeSpent         Int          @default(0)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ─── Projects ──────────────────────────────────────────────────────────────
+
+model Project {
+  id           String        @id @default(cuid())
+  userId       String
+  name         String
+  description  String?
+  status       ProjectStatus @default(Planned)
+  priority     Priority      @default(Medium)
+  startDate    DateTime?
+  targetDate   DateTime?
+  progress     Int           @default(0)
+  techStack    String?
+  repoUrl      String?
+  deployUrl    String?
+  goals        String?
+  notes        String?
+  githubRepo   String?       // "owner/repo"
+  lastSyncedAt DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs         ProjectLog[]
+
+  @@index([userId])
+}
+
+model ProjectLog {
+  id              String   @id @default(cuid())
+  projectId       String
+  userId          String
+  date            DateTime @default(now())
+  timeSpent       Int
+  workedOn        String
+  completed       String?
+  blockers        String?
+  nextSteps       String?
+  githubCommitSha String?
+  githubCommitUrl String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([userId])
+}
+
+// ─── Daily Journal ─────────────────────────────────────────────────────────
+
+model DailyJournal {
+  id                   String   @id @default(cuid())
+  userId               String
+  date                 DateTime
+  dsaActivity          String?
+  systemDesignActivity String?
+  projectActivity      String?
+  generalLearning      String?
+  notes                String?
+  timeSpent            Int?
+  wins                 String?
+  blockers             String?
+  tomorrowPriorities   String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+}
+
+// ─── Time Tracking ─────────────────────────────────────────────────────────
+
+model TimeLog {
+  id              String    @id @default(cuid())
+  userId          String
+  category        String
+  startedAt       DateTime
+  endedAt         DateTime?
+  pausedAt        DateTime?
+  pausedDuration  Int       @default(0)
+  durationMinutes Int?
+  note            String?
+  linkedType      String?
+  linkedId        String?
+  isRunning       Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, isRunning])
+  @@index([userId, category])
+}
+
+// ─── Goals ─────────────────────────────────────────────────────────────────
+
+model Goal {
+  id           String   @id @default(cuid())
+  userId       String
+  title        String
+  type         GoalType @default(Daily)
+  category     String?
+  targetValue  Int
+  targetUnit   String
+  currentValue Int      @default(0)
+  startDate    DateTime
+  endDate      DateTime
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, isActive])
+}
+
+// ─── Interview Questions ────────────────────────────────────────────────────
+
+model InterviewQuestion {
+  id          String   @id @default(cuid())
+  userId      String
+  category    String   // "Java Core", "Collections", "Multithreading", "Streams", "SpringBoot", "SQL", "System Design", "Behavioral"
+  subCategory String?
+  question    String
+  answer      String?
+  difficulty  String   @default("Medium") // "Easy", "Medium", "Hard"
+  tags        String?  // comma-separated
+  source      String?
+  confidence  Int?     // 1-5
+  reviewAt    DateTime?
+  isFromBank  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, category])
+  @@index([userId, reviewAt])
+}
+
+// ─── Study Plans ────────────────────────────────────────────────────────────
+
+model StudyPlan {
+  id            String           @id @default(cuid())
+  name          String
+  description   String
+  durationWeeks Int
+  isActive      Boolean          @default(true)
+  phases        StudyPlanPhase[]
+  userPlans     UserStudyPlan[]
+  createdAt     DateTime         @default(now())
+}
+
+model StudyPlanPhase {
+  id             String                      @id @default(cuid())
+  planId         String
+  name           String
+  order          Int
+  description    String?
+  targetProblems Int                         @default(0)
+  targetHours    Int                         @default(0)
+  topics         String?                     // comma-separated
+  plan           StudyPlan                   @relation(fields: [planId], references: [id], onDelete: Cascade)
+  phaseProgress  UserStudyPlanPhaseProgress[]
+}
+
+model UserStudyPlan {
+  id            String                      @id @default(cuid())
+  userId        String
+  planId        String
+  currentPhase  Int                         @default(0)
+  startDate     DateTime                    @default(now())
+  completedAt   DateTime?
+  user          User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan          StudyPlan                   @relation(fields: [planId], references: [id], onDelete: Cascade)
+  phaseProgress UserStudyPlanPhaseProgress[]
+
+  @@unique([userId, planId])
+  @@index([userId])
+}
+
+model UserStudyPlanPhaseProgress {
+  id             String         @id @default(cuid())
+  userPlanId     String
+  phaseId        String
+  problemsSolved Int            @default(0)
+  hoursStudied   Int            @default(0)
+  completedAt    DateTime?
+  userPlan       UserStudyPlan  @relation(fields: [userPlanId], references: [id], onDelete: Cascade)
+  phase          StudyPlanPhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+
+  @@unique([userPlanId, phaseId])
+}
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+
+enum Difficulty {
+  Easy
+  Medium
+  Hard
+}
+
+enum DSAStatus {
+  NotStarted
+  InProgress
+  Solved
+  NeedsReview
+  Revisit
+}
+
+enum SDStatus {
+  NotStarted
+  Learning
+  Practicing
+  Comfortable
+  NeedsReview
+}
+
+enum SDCaseStatus {
+  NotStarted
+  InProgress
+  Completed
+  NeedsReview
+}
+
+enum ProjectStatus {
+  Planned
+  Active
+  OnHold
+  Completed
+}
+
+enum Priority {
+  Low
+  Medium
+  High
+}
+
+enum GoalType {
+  Daily
+  Weekly
+  Monthly
+}

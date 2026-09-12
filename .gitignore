@@ -1,15 +1,53 @@
-node_modules/
-.env
-.env.*
-!.env.example
-data/
-*.log
-*service-account*.json
-*google-service-account*.json
-jatin-activity-tracker*.json
-jatin-activity-tracker-e5933bf9f3a2.json
-*.key
-*.pem
-.DS_Store
-Thumbs.db
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+*.json.example
+
+# Service account keys (secrets — never commit)
+*jatin-activity-tracker*.json
+*service-account*.json
+*service_account*.json
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Custom Directories
+/Interview/
+/data/
+/_archive/
+/.kilo/
