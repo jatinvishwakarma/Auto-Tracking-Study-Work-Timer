@@ -131,7 +131,7 @@ async function seedInterviewQuestions() {
   // Only seed questions that don't already exist (check by question text for a known user)
   // For bank questions, we use a sentinel userId "BANK"
   const BANK_USER = "BANK";
-  
+
   // Ensure BANK user exists
   await prisma.user.upsert({
     where: { id: BANK_USER },

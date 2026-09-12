@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Play, CheckCircle2, ChevronRight, RotateCcw, AlertCircle } from "lucide-react";
+import { Play, CheckCircle2, ChevronRight, AlertCircle } from "lucide-react";
 
 type InterviewQuestion = {
   id: string;
@@ -35,7 +35,7 @@ export default function MockInterviewPage() {
         setShowAnswer(false);
         setCompleted(false);
       }
-    } catch (error) {
+    } catch {
       console.error("Failed to generate mock interview");
     } finally {
       setLoading(false);

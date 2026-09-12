@@ -86,7 +86,7 @@ export default function DSAPage() {
     const currentPage = reset ? 1 : page;
     setLoading(true);
     try {
-      const params = new URLSearchParams({ page: currentPage.toString(), limit: "100" });
+      const params = new URLSearchParams({ page: currentPage.toString(), limit: "1000" });
       if (filterDiff) params.set("difficulty", filterDiff);
       if (filterStatus) params.set("status", filterStatus);
       if (search) params.set("search", search);

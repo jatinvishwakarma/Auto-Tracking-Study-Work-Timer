@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Search, X, ChevronDown, ChevronUp, Star, Loader2, Trash2 } from "lucide-react";
+import { Plus, Search, X, ChevronDown, ChevronUp, Loader2, Trash2 } from "lucide-react";
 
 type InterviewQuestion = {
   id: string;
@@ -59,7 +59,7 @@ export default function InterviewQuestionsPage() {
     const currentPage = reset ? 1 : page;
     setLoading(true);
     try {
-      const params = new URLSearchParams({ page: currentPage.toString(), limit: "100" });
+      const params = new URLSearchParams({ page: currentPage.toString(), limit: "1000" });
       if (activeCategory) params.set("category", activeCategory);
       if (search) params.set("search", search);
       const res = await fetch(`/api/interview-questions?${params}`);
@@ -74,7 +74,9 @@ export default function InterviewQuestionsPage() {
   }, [activeCategory, search, page]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1); // Reset page on filter change
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setQuestions([]);
   }, [activeCategory, search]);
 

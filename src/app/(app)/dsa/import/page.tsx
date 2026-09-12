@@ -254,7 +254,7 @@ export default function DSAImportPage() {
               <div>
                 <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">Topic / Category</label>
                 <select className="input" value={mapTopic} onChange={e => setMapTopic(e.target.value)}>
-                  <option value="">-- Ignore (Sets to "General") --</option>
+                  <option value="">-- Ignore (Sets to &quot;General&quot;) --</option>
                   {columns.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
@@ -262,7 +262,7 @@ export default function DSAImportPage() {
               <div>
                 <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">Difficulty</label>
                 <select className="input" value={mapDiff} onChange={e => setMapDiff(e.target.value)}>
-                  <option value="">-- Ignore (Sets to "Medium") --</option>
+                  <option value="">-- Ignore (Sets to &quot;Medium&quot;) --</option>
                   {columns.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
@@ -270,7 +270,7 @@ export default function DSAImportPage() {
               <div>
                 <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">Status</label>
                 <select className="input" value={mapStatus} onChange={e => setMapStatus(e.target.value)}>
-                  <option value="">-- Ignore (Sets to "Not Started") --</option>
+                  <option value="">-- Ignore (Sets to &quot;Not Started&quot;) --</option>
                   {columns.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
